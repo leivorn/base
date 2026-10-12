@@ -355,6 +355,23 @@ update_prod_config_port() {
 
 FINAL_SERVER_PORT=""
 
+# 远程检查的结果分三种：0 是、1 否、255 SSH 本身没连上。连不上不能当「否」：
+# 「服务不存在」会走首次部署的分支，「端口没占用 / 被占用」会换端口——下游真实事故：部署时 SSH 断了一下，
+# 已部署的服务被当成首次部署、端口被自己占着于是换到下一个端口并回写 config.prod.yaml，nginx 还指着原端口，整站 502。
+ssh_failed() {
+    echo -e "${RED}SSH 连接失败（$1），为了不误判服务和端口，停止部署；稍后重试即可${NC}"
+    exit 1
+}
+
+# remote_check <说明> <命令...>：回 0 / 1，SSH 连不上直接停止部署
+remote_check() {
+    local what="$1" rc=0
+    shift
+    "$@" || rc=$?
+    [ "$rc" -eq 255 ] && ssh_failed "$what"
+    return "$rc"
+}
+
 resolve_server_port() {
     local configured_port final_port i main_pid listener
     configured_port=$(grep -E '^[[:space:]]*port:' "$SERVER_DIR/config.prod.yaml" | head -1 | awk '{print $2}')
@@ -363,8 +380,8 @@ resolve_server_port() {
 
     echo -e "${YELLOW}[后端] 检查远程端口 ${configured_port}...${NC}"
 
-    if remote_service_exists; then
-        if remote_port_in_use "$configured_port"; then
+    if remote_check "检查服务是否已部署" remote_service_exists; then
+        if remote_check "检查端口 ${configured_port}" remote_port_in_use "$configured_port"; then
             # 端口在监听——先判断是不是本服务自己占着(正常情况)
             main_pid=$(ssh_run "systemctl show -p MainPID --value ${SERVICE_NAME} 2>/dev/null" | tr -d '[:space:]' || true)
             listener=$(ssh_run "ss -tlnp 2>/dev/null | grep '[:.]${configured_port} ' | head -1" || true)
@@ -383,7 +400,7 @@ resolve_server_port() {
     fi
 
     # 首次部署：配置端口空闲则直接用
-    if ! remote_port_in_use "$configured_port"; then
+    if ! remote_check "检查端口 ${configured_port}" remote_port_in_use "$configured_port"; then
         return 0
     fi
 
@@ -391,7 +408,7 @@ resolve_server_port() {
     final_port=$configured_port
     for i in $(seq 1 50); do
         final_port=$((final_port + 1))
-        if ! remote_port_in_use "$final_port"; then
+        if ! remote_check "检查端口 ${final_port}" remote_port_in_use "$final_port"; then
             FINAL_SERVER_PORT="$final_port"
             update_prod_config_port "$final_port"
             echo -e "${GREEN}        改用空闲端口 ${final_port}，已同步回写 server/config.prod.yaml${NC}"
