@@ -23,8 +23,8 @@ jobs:
   # 组织限制了 "Allow select actions" 导致远程调用被拒时，把下面这行换成
   # uses: ./.github/workflows/checks.yml （该文件本来就随 merge 继承了）。
   checks:
-    if: github.repository != 'xsxs89757/base'
-    uses: xsxs89757/base/.github/workflows/checks.yml@ci-v1
+    if: github.repository != 'leivorn/base'
+    uses: leivorn/base/.github/workflows/checks.yml@ci-v1
 
   # 基底本体：调用本提交里的 checks.yml，先在自己身上验证过，再前移 ci-v1 给下游。
   #
@@ -32,14 +32,14 @@ jobs:
   # 逻辑（git diff HEAD^1 HEAD、event.before 判断）在基底自己身上先跑过一遍——
   # 否则它的首次真实执行会发生在第一个同步到新版的下游仓库上，基底这边永远测不出来。
   checks-base:
-    if: github.repository == 'xsxs89757/base'
+    if: github.repository == 'leivorn/base'
     uses: ./.github/workflows/checks.yml
     with:
       all: ${{ github.event_name != 'pull_request' }}
 
   hooks-guard:
     name: 挂载点冻结校验
-    if: github.repository == 'xsxs89757/base'
+    if: github.repository == 'leivorn/base'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -55,7 +55,7 @@ jobs:
   # 失败**，且与下游自己的代码无关。
   scaffold:
     name: 脚手架
-    if: github.repository == 'xsxs89757/base'
+    if: github.repository == 'leivorn/base'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

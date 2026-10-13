@@ -1,6 +1,6 @@
 // Package store 是数据层在本项目里的挂载点。
 //
-// 真正的数据层实现在 github.com/xsxs89757/base-kit/store：连接、迁移、基底种子数据都在那边。
+// 真正的数据层实现在 github.com/leivorn/base-kit/store：连接、迁移、基底种子数据都在那边。
 // 本包只提供两样东西：
 //   - 把 project.go 里登记的模型和种子数据交给 kit（ProjectModels / ProjectSeed）
 //   - 转发 v2.0.0 之前本包对外的符号（DB、IsUniqueViolation）和 project.go 用到的
@@ -8,12 +8,12 @@
 //
 // 正因为本包还在，basekit-migrate 不会改写 base/internal/store 的 import。
 // kit 里 store 的其余能力（SyncSeedMenus、RemoveLegacySeedMenus 等）没有转发，
-// 需要时直接 import kit：`kitstore "github.com/xsxs89757/base-kit/store"`。
+// 需要时直接 import kit：`kitstore "github.com/leivorn/base-kit/store"`。
 package store
 
 import (
-	adminmodel "github.com/xsxs89757/base-kit/model/admin"
-	kitstore "github.com/xsxs89757/base-kit/store"
+	adminmodel "github.com/leivorn/base-kit/model/admin"
+	kitstore "github.com/leivorn/base-kit/store"
 
 	"gorm.io/gorm"
 )

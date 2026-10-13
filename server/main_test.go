@@ -12,9 +12,9 @@ import (
 	"base/internal/router"
 	"base/internal/store"
 
-	basekit "github.com/xsxs89757/base-kit"
-	"github.com/xsxs89757/base-kit/config"
-	kitstore "github.com/xsxs89757/base-kit/store"
+	basekit "github.com/leivorn/base-kit"
+	"github.com/leivorn/base-kit/config"
+	kitstore "github.com/leivorn/base-kit/store"
 
 	"github.com/gofiber/fiber/v2"
 )

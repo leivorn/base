@@ -412,7 +412,7 @@ if command -v make >/dev/null 2>&1; then
     SWAG_RUN=(make -C "$ROOT_DIR" --no-print-directory swagger)
 else
     echo -e "${YELLOW}      未找到 make，直接调用 swag（若你定制过 swagger 目标，请装 make 或手动生成）${NC}"
-    SWAG_RUN=("${SWAG_CMD[@]}" init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/xsxs89757/base-kit)
+    SWAG_RUN=("${SWAG_CMD[@]}" init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/leivorn/base-kit)
 fi
 echo -e "${YELLOW}      生成 Swagger 文档...${NC}"
 SWAG_LOG=$(mktemp)

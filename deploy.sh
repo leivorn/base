@@ -437,7 +437,7 @@ deploy_server() {
     # 与 dev.sh 同策略：滤掉 600+ 行流水账，只留警告/报错（不用 -q，它把警告也吞了）
     local swag_log
     swag_log=$(mktemp)
-    if GOWORK=off go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/xsxs89757/base-kit >"$swag_log" 2>&1; then
+    if GOWORK=off go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/leivorn/base-kit >"$swag_log" 2>&1; then
         grep -vE 'Generating |TypeSpecDef is nil|Generate swagger docs|Generate general API Info|create (docs\.go|swagger\.json|swagger\.yaml) at ' "$swag_log" | sed 's/^/        /' || true
     else
         echo -e "${RED}        Swagger 生成失败（继续用上一次的文档）:${NC}"

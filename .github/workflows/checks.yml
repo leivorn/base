@@ -1,7 +1,7 @@
 name: checks
 
 # 基底与所有下游共用的检查流水线。下游的 ci.yml 通过
-#   uses: xsxs89757/base/.github/workflows/checks.yml@ci-v1
+#   uses: leivorn/base/.github/workflows/checks.yml@ci-v1
 # 调用它——CI 的修复不再需要下游先 make sync-base 才能拿到（khgl/sdut 就是这么
 # 连红十几次的：基底早修好了，它们没同步，一直跑着旧版 workflow）。
 #

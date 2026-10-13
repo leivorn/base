@@ -34,10 +34,10 @@ die()  { echo "${RED}$*${NC}" >&2; exit 1; }
 # 是否基底仓库本体。CI 里用 GITHUB_REPOSITORY，本地看 origin（与 check-hooks.sh 同一判断）。
 is_base() {
     if [ -n "${GITHUB_REPOSITORY:-}" ]; then
-        [ "$GITHUB_REPOSITORY" = "xsxs89757/base" ]
+        [ "$GITHUB_REPOSITORY" = "leivorn/base" ]
         return
     fi
-    git remote get-url origin 2>/dev/null | grep -Eq 'xsxs89757/base(\.git)?/?$'
+    git remote get-url origin 2>/dev/null | grep -Eq 'leivorn/base(\.git)?/?$'
 }
 
 have() { command -v "$1" >/dev/null 2>&1; }
@@ -90,7 +90,7 @@ gen_swagger() {
         echo "${YELLOW}    未找到 make，直接调用 swag（若你定制过 swagger 目标，请装 make 或手动生成）${NC}"
         (cd server && go run github.com/swaggo/swag/cmd/swag@v1.16.6 init \
             -g main.go -o docs --parseDependencyLevel 3 \
-            --packagePrefix base,github.com/xsxs89757/base-kit)
+            --packagePrefix base,github.com/leivorn/base-kit)
     fi
 }
 

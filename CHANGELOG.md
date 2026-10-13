@@ -8,6 +8,27 @@
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-10-13
+
+GitHub 账号 xsxs89757 改名为 leivorn。旧用户名不再由本人持有，任何人都能注册，注册后旧地址的跳转随即失效，
+所以基底、base-kit、脚手架的地址和 Go 模块路径一律改为 `github.com/leivorn/...`。
+
+### 变更
+
+- 框架层改依赖 `github.com/leivorn/base-kit v1.5.0`（代码与 1.4.0 相同，只改了模块路径）。
+- 脚手架改为 `go run github.com/leivorn/base/tools/create-base@latest`，默认基底地址 `https://github.com/leivorn/base.git`。
+- 下游 CI 改为 `uses: leivorn/base/.github/workflows/checks.yml@ci-v1`；`ci.yml`、`scripts/check.sh`、
+  `scripts/check-hooks.sh`、`Makefile` 判断「是不是基底本体」改认 `leivorn/base`（不改的话，基底自己的 CI 会把基底当成下游）。
+- Swagger 的 `--packagePrefix` 改为 `base,github.com/leivorn/base-kit`。
+
+### 升级步骤
+
+1. `make sync-base VERSION=v2.5.0` 合入后，把项目自己代码和配置里剩下的旧路径换掉：编辑器里全局替换
+   `github.com/xsxs89757/` → `github.com/leivorn/`、`xsxs89757/base` → `leivorn/base`，然后 `cd server && go mod tidy`，
+   `go.mod` 里应只剩 `github.com/leivorn/base-kit`。
+2. `git remote set-url base https://github.com/leivorn/base.git`（origin 若也在旧用户名下，同样改成 leivorn）。
+3. 确认 `.github/workflows/ci.yml` 里 `uses:` 一行是 `leivorn/base/.github/workflows/checks.yml@ci-v1`。
+
 ## [2.4.3] - 2026-10-12
 
 修 `./deploy.sh` 在 SSH 抖动时把已部署的服务误判成首次部署、换掉服务端口。
@@ -484,8 +505,8 @@ merge 无冲突、改写 4 个文件、编译测试通过、Swagger 30 条路径
 5. 检查生产 `config.yaml`：`mode: production` 时 `jwt.secret` 必须 ≥32 位且不是示例占位值，
    否则服务拒绝启动。生成方式：`openssl rand -base64 48`。
 
-[Unreleased]: https://github.com/xsxs89757/base/compare/v2.0.1...HEAD
-[2.0.1]: https://github.com/xsxs89757/base/compare/v2.0.0...v2.0.1
-[2.0.0]: https://github.com/xsxs89757/base/compare/v1.0.1...v2.0.0
-[1.0.1]: https://github.com/xsxs89757/base/compare/v1.0.0...v1.0.1
-[1.0.0]: https://github.com/xsxs89757/base/releases/tag/v1.0.0
+[Unreleased]: https://github.com/leivorn/base/compare/v2.5.0...HEAD
+[2.0.1]: https://github.com/leivorn/base/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/leivorn/base/compare/v1.0.1...v2.0.0
+[1.0.1]: https://github.com/leivorn/base/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/leivorn/base/releases/tag/v1.0.0

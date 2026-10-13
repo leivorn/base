@@ -1,6 +1,6 @@
 // create-base 从 base 基底创建一个新项目。
 //
-//	go run github.com/xsxs89757/base/tools/create-base@latest myproject
+//	go run github.com/leivorn/base/tools/create-base@latest myproject
 //
 // 它做的就是 CLAUDE.md 里那套手工步骤：保留共同 git 历史地 clone（之后才能
 // make sync-base）、按项目名填好本地配置、生成随机密钥、装依赖、提交首个 commit。
@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const defaultBaseURL = "https://github.com/xsxs89757/base.git"
+const defaultBaseURL = "https://github.com/leivorn/base.git"
 
 type options struct {
 	Name        string // 项目名，同时用作 PROJECT_NAME / 前端 namespace / 目录名

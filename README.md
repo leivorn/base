@@ -5,7 +5,7 @@
 ## 技术栈
 
 ### 后端 (server/ + base-kit)
-- **[base-kit](https://github.com/xsxs89757/base-kit)** - 框架层与系统管理模块，`go get ...@latest` 升级，不随模板 merge
+- **[base-kit](https://github.com/leivorn/base-kit)** - 框架层与系统管理模块，`go get ...@latest` 升级，不随模板 merge
 - **Fiber v2** - 高性能 Go Web 框架
 - **GORM** - Go ORM 框架 (默认 SQLite，可切换 MySQL/PostgreSQL)
 - **菜单权限码 RBAC** - 角色 → 菜单/按钮 auth_code → 路由，无额外策略表
@@ -29,7 +29,7 @@
 ### 创建新项目
 
 ```bash
-go run github.com/xsxs89757/base/tools/create-base@latest myproject
+go run github.com/leivorn/base/tools/create-base@latest myproject
 ```
 
 一条命令完成：保留共同 git 历史地克隆基底（之后才能 `make sync-base`）、生成随机
@@ -62,7 +62,7 @@ make dev-force
 ### 公网调试（穿云内网穿透，可选）
 
 微信/支付回调、手机真机联调、把本地页面发给别人看，都需要一个公网地址。装好
-[穿云](https://github.com/xsxs89757/chuanyun) 桌面客户端并登录后，`./dev.sh` 会自动
+[穿云](https://github.com/leivorn/chuanyun) 桌面客户端并登录后，`./dev.sh` 会自动
 把前后端各挂一条隧道，地址固定、重启不变：
 
 ```
@@ -389,15 +389,15 @@ project_deploy_web() {
 
 ## 基底与下游项目
 
-本仓库是统一基底：`https://github.com/xsxs89757/base`。新项目从基底克隆派生，
+本仓库是统一基底：`https://github.com/leivorn/base`。新项目从基底克隆派生，
 之后随时 `make sync-base` 合入基底的 bug 修复和新功能。
 
 ```bash
 # 创建新项目：推荐用脚手架，它会做完下面所有事情
-go run github.com/xsxs89757/base/tools/create-base@latest myproject --origin <新项目仓库地址>
+go run github.com/leivorn/base/tools/create-base@latest myproject --origin <新项目仓库地址>
 
 # 手工方式（等价，必须保留共同 git 历史，禁止删 .git 重新 init / 纯文件拷贝）
-git clone --no-tags -o base https://github.com/xsxs89757/base.git myproject
+git clone --no-tags -o base https://github.com/leivorn/base.git myproject
 cd myproject
 git remote add origin <新项目仓库地址>
 git branch --unset-upstream        # 否则 git push 会推向基底
@@ -539,8 +539,8 @@ base-kit v1.0.3 及之前会让每个写操作记两条操作日志，鉴权和�
 - **MINOR**：新功能、新增可选配置或菜单，可能需要用户重新登录；
 - **PATCH**：修 bug、改文档。
 
-后端框架层单独版本化：`github.com/xsxs89757/base-kit`。模板的 `server/go.mod` 钉一个具体版本，
-下游想单独拿框架层的补丁可以 `cd server && go get github.com/xsxs89757/base-kit@latest`，不必等基底发版。
+后端框架层单独版本化：`github.com/leivorn/base-kit`。模板的 `server/go.mod` 钉一个具体版本，
+下游想单独拿框架层的补丁可以 `cd server && go get github.com/leivorn/base-kit@latest`，不必等基底发版。
 （别用 `go get -u`：它会把 kit 的依赖一并升到最新 minor，与钉死版本的初衷相反。）
 kit 的 MINOR 只增不改、数据库变更只增列，破坏性变更走 `/v2` 路径。
 

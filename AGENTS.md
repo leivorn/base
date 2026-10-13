@@ -7,7 +7,7 @@
 这是一个后台管理系统：
 
 - 后端：`server/`，Go Fiber v2 + GORM + JWT + Swagger/OpenAPI；权限为菜单权限码 RBAC。
-- **后端框架层是外部依赖**：配置、鉴权、权限码、数据层与整套系统管理模块在 `github.com/xsxs89757/base-kit`（本地开发副本约定放在仓库同级目录 `../base-kit`）。`server/` 只剩 `main.go`（装配）、两个挂载点和业务代码。
+- **后端框架层是外部依赖**：配置、鉴权、权限码、数据层与整套系统管理模块在 `github.com/leivorn/base-kit`（本地开发副本约定放在仓库同级目录 `../base-kit`）。`server/` 只剩 `main.go`（装配）、两个挂载点和业务代码。
 - 前端：`admin/`，Vben Admin v5 + Vue 3 + TypeScript + Ant Design Vue + Vite + Pinia + Tailwind CSS。
 - 前端应用主路径：`admin/apps/web-antd/src/`。
 - 后端管理接口前缀：`/admin`。
@@ -16,22 +16,22 @@
 
 ## 基底与下游项目
 
-本仓库是统一基底，地址 `https://github.com/xsxs89757/base`。新项目从基底克隆派生，之后持续用 git merge 吸收基底的 bug 修复与新功能。
+本仓库是统一基底，地址 `https://github.com/leivorn/base`。新项目从基底克隆派生，之后持续用 git merge 吸收基底的 bug 修复与新功能。
 
-身份判断：`git remote -v` 中 origin 指向 `xsxs89757/base` 时是基底本体；存在名为 `base` 的 remote 时是下游项目。本文件其余规则两种身份通用，下游项目额外遵守「下游开发纪律」。
+身份判断：`git remote -v` 中 origin 指向 `leivorn/base` 时是基底本体；存在名为 `base` 的 remote 时是下游项目。本文件其余规则两种身份通用，下游项目额外遵守「下游开发纪律」。
 
 ### 新项目初始化（下游 bootstrap）
 
 用户新开项目并指定使用本基底时，**优先用脚手架**，它会完成克隆、配置生成、依赖安装和首个提交：
 
 ```bash
-go run github.com/xsxs89757/base/tools/create-base@latest <项目名> --origin <新项目仓库地址>
+go run github.com/leivorn/base/tools/create-base@latest <项目名> --origin <新项目仓库地址>
 ```
 
 脚手架不可用时手工创建（等价）。禁止「删 `.git` 重新 init」或纯文件拷贝——那会切断与基底的共同历史，之后无法正常 merge：
 
 ```bash
-git clone --no-tags -o base https://github.com/xsxs89757/base.git <项目名>
+git clone --no-tags -o base https://github.com/leivorn/base.git <项目名>
 cd <项目名>
 git remote add origin <新项目自己的仓库地址>   # 用户未提供则先跳过
 git branch --unset-upstream                    # 否则 git push 推向基底
@@ -46,7 +46,7 @@ git push -u origin main
 
 按后续 `make sync-base` 的合并成本，把文件分为两类：
 
-**后端框架层不在仓库里，改不了也不用改**：配置、鉴权、权限码、数据层、系统管理模块（用户/角色/菜单/部门/配置/操作日志）都在 `github.com/xsxs89757/base-kit`。修 bug 或加通用功能到 kit 仓库提，下游 `go get github.com/xsxs89757/base-kit@latest` 就拿到，不再产生 merge 冲突。
+**后端框架层不在仓库里，改不了也不用改**：配置、鉴权、权限码、数据层、系统管理模块（用户/角色/菜单/部门/配置/操作日志）都在 `github.com/leivorn/base-kit`。修 bug 或加通用功能到 kit 仓库提，下游 `go get github.com/leivorn/base-kit@latest` 就拿到，不再产生 merge 冲突。
 
 kit 提供的扩展点（够用就别 fork）：
 
@@ -101,7 +101,7 @@ kit 提供的扩展点（够用就别 fork）：
 
 ### CI 怎么跑的
 
-`ci.yml` 只做分发：下游调用基底发布的 `xsxs89757/base/.github/workflows/checks.yml@ci-v1`，基底本体调用本提交里的同一个文件。好处是**修 CI 不再需要下游先 `make sync-base`**——基底改完 `checks.yml` 并前移 `ci-v1`，所有下游下一次推送就用上了。
+`ci.yml` 只做分发：下游调用基底发布的 `leivorn/base/.github/workflows/checks.yml@ci-v1`，基底本体调用本提交里的同一个文件。好处是**修 CI 不再需要下游先 `make sync-base`**——基底改完 `checks.yml` 并前移 `ci-v1`，所有下游下一次推送就用上了。
 
 `checks.yml` 保持极薄：只装工具链，检查内容全在 `scripts/check.sh` 里，而 `check.sh` 是随 merge 走的，所以下游停在哪个基底版本，跑的就是那个版本的检查语义，移动标签不会把新语义强加给旧下游。
 
@@ -157,7 +157,7 @@ kit 提供的扩展点（够用就别 fork）：
 
 ### 框架层在哪
 
-配置、JWT 鉴权、菜单权限码、数据层、系统管理模块都在 `github.com/xsxs89757/base-kit`：
+配置、JWT 鉴权、菜单权限码、数据层、系统管理模块都在 `github.com/leivorn/base-kit`：
 
 | 需求 | 去哪 |
 | --- | --- |
@@ -221,7 +221,7 @@ Tags 命名保持业务可读：
 API 变更后在 `server/` 下执行：
 
 ```bash
-swag init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/xsxs89757/base-kit
+swag init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/leivorn/base-kit
 ```
 
 ### GORM 注意事项
@@ -324,7 +324,7 @@ cd admin && pnpm dev:antd
 
 ```bash
 # 新建项目（脚手架）
-go run github.com/xsxs89757/base/tools/create-base@latest <项目名> --origin <仓库地址>
+go run github.com/leivorn/base/tools/create-base@latest <项目名> --origin <仓库地址>
 
 # 校验（与 CI 同一份逻辑）
 make check                      # 后端 + 前端 + 脚本

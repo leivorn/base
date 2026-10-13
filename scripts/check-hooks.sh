@@ -6,7 +6,7 @@
 # 脚本把承诺变成可执行的检查：两个 Go 挂载点按 blob id 冻结，其余挂载点必须不存在
 # （它们由下游按需新增：dev/deploy 扩展、Makefile 自有目标、CI 自有 job）。
 #
-# 只在基底仓库本体生效（origin 指向 xsxs89757/base）；下游可以随意修改挂载点，
+# 只在基底仓库本体生效（origin 指向 leivorn/base）；下游可以随意修改挂载点，
 # 继承到这个脚本时自动跳过。
 #
 # 基底确需改动挂载点时（应极少）：改完用 git hash-object 取新 id 更新下面的常量，
@@ -17,7 +17,7 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
 
-if ! git remote get-url origin 2>/dev/null | grep -Eq 'xsxs89757/base(\.git)?/?$'; then
+if ! git remote get-url origin 2>/dev/null | grep -Eq 'leivorn/base(\.git)?/?$'; then
     echo "check-hooks: 非基底仓库本体，跳过（下游可自由修改挂载点）"
     exit 0
 fi

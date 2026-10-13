@@ -7,8 +7,8 @@ PROJECT ?=
 DEV_FLAGS :=
 
 # 基底仓库标识：base-release 用它确认「只在基底本体发布」
-BASE_REPO := xsxs89757/base
-BASE_URL := https://github.com/xsxs89757/base.git
+BASE_REPO := leivorn/base
+BASE_URL := https://github.com/leivorn/base.git
 # 版本号：base-release 必填 (vX.Y.Z)；sync-base 可选 (vX.Y.Z | main)
 VERSION ?=
 # swag 钉死版本：本地与 CI 必须用同一版本，否则 docs 一致性检查会误报
@@ -90,26 +90,26 @@ release-admin publish-admin:
 release-%:
 	@./deploy.sh $* $(PROJECT)
 
-# 框架层在 github.com/xsxs89757/base-kit，用 go get github.com/xsxs89757/base-kit@latest 升级；
+# 框架层在 github.com/leivorn/base-kit，用 go get github.com/leivorn/base-kit@latest 升级；
 # 下面三个目标只在少数场景用到
 migrate-kit:
 	@echo "==> 改写 import 路径 (base/internal/* -> base-kit)"
-	@cd server && go run github.com/xsxs89757/base-kit/cmd/basekit-migrate ./... || { \
+	@cd server && go run github.com/leivorn/base-kit/cmd/basekit-migrate ./... || { \
 		echo "跑不起来通常是 go.mod 里还没有 base-kit：先 make sync-base，"; \
-		echo "解决 go.mod 冲突时保留 require github.com/xsxs89757/base-kit 那一行"; exit 1; }
+		echo "解决 go.mod 冲突时保留 require github.com/leivorn/base-kit 那一行"; exit 1; }
 	@cd server && go mod tidy
 	@echo "==> 完成，接着跑 make swagger && make test"
 
 # 同时改 kit 和模板时用：go.work 让模板直接编译 ../base-kit 的源码，改完 kit 不用发版就能验证。
 # go.work 已 gitignore；deploy.sh 用 GOWORK=off 编译，发布永远按 go.mod 钉死的版本。
 kit-dev:
-	@[ -d ../base-kit ] || { echo "未找到 ../base-kit，先 git clone https://github.com/xsxs89757/base-kit.git"; exit 1; }
+	@[ -d ../base-kit ] || { echo "未找到 ../base-kit，先 git clone https://github.com/leivorn/base-kit.git"; exit 1; }
 	@cd server && go work init . ../../base-kit 2>/dev/null || true
-	@cd server && go list -m -f '  base-kit 现在解析到 {{.Dir}}' github.com/xsxs89757/base-kit
+	@cd server && go list -m -f '  base-kit 现在解析到 {{.Dir}}' github.com/leivorn/base-kit
 
 kit-undev:
 	@rm -f server/go.work server/go.work.sum
-	@cd server && go list -m -f '  base-kit 现在解析到 {{.Dir}}' github.com/xsxs89757/base-kit
+	@cd server && go list -m -f '  base-kit 现在解析到 {{.Dir}}' github.com/leivorn/base-kit
 
 # ---------------------------------------------------------------------------
 # 校验：这些只是 scripts/check.sh 的转发，CI 与 pre-push 钩子调的是同一份逻辑。
@@ -152,7 +152,7 @@ test-server:
 	@cd server && go test ./...
 
 swagger:
-	@cd server && $(SWAG) init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/xsxs89757/base-kit
+	@cd server && $(SWAG) init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/leivorn/base-kit
 
 # ---------------------------------------------------------------------------
 # 基底与下游同步
