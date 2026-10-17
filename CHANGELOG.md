@@ -8,6 +8,8 @@
 
 ## [Unreleased]
 
+## [2.5.1] - 2026-10-17
+
 修下游每次 `./deploy.sh` 都把 `server/docs` 改脏。
 
 ### 修复
