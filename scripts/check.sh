@@ -11,7 +11,7 @@
 # 用法: bash scripts/check.sh <子命令> [选项]
 #   backend [--no-swagger]  后端: vet / test / 交叉编译 / Swagger 生成
 #   frontend [--fast]       前端: typecheck (--fast 时跳过 build)
-#   scripts                 所有 shell 脚本的语法检查
+#   scripts                 所有 shell 脚本的语法检查 + 脚本的离线行为测试
 #   base                    仅基底本体: 挂载点冻结 + 脚手架测试
 #   all                     backend + frontend + scripts
 #   pre-push                按改动路径挑选上面的子集（供 .githooks/pre-push 调用）
@@ -138,7 +138,7 @@ check_frontend() {
 }
 
 # ---------------------------------------------------------------------------
-# 脚本语法
+# 脚本语法 + 离线行为测试
 # ---------------------------------------------------------------------------
 check_scripts() {
     step "脚本语法"
@@ -151,6 +151,17 @@ check_scripts() {
         fi
     done
     ok "脚本语法通过"
+
+    # 测试把 make / go 换成桩、PATH 只留桩目录，这套做法没在 Git Bash 上验证过，
+    # 钩子又绝不能因为环境问题挡住 push，所以 Windows 上跳过；CI 和 macOS / Linux 都跑。
+    case "$(uname -s 2>/dev/null)" in
+        MINGW*|MSYS*|CYGWIN*)
+            echo "${YELLOW}    Windows 上跳过脚本离线测试${NC}"
+            return 0 ;;
+    esac
+    step "脚本离线测试"
+    bash scripts/deploy-swagger-test.sh || die "deploy.sh 生成 Swagger 的离线测试失败"
+    ok "脚本离线测试通过"
 }
 
 # ---------------------------------------------------------------------------

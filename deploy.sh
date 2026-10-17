@@ -424,6 +424,34 @@ resolve_server_port() {
 # -------------------------------------------------------
 # 编译后端
 # -------------------------------------------------------
+
+# 重新生成 server/docs。失败不中断部署，继续用仓库里已有的文档。
+# 有 make 就走 make swagger，和 dev.sh / scripts/check.sh 同一个理由：下游可能改过 swagger 目标
+# （多生成一份文档、加 --tags 把两份分开），这里写死 swag 命令就会生成出和 CI 不一样的 docs——
+# 部署一次工作区就脏了，之后按 git describe --dirty 编的二进制版本号都带 -dirty。
+# Windows 的 Git Bash 不带 make，退回直接调 swag（版本与 Makefile / dev.sh / CI 钉的同一个）。
+# GOWORK=off 与 deploy_server 的 go build 一致：本地 make kit-dev 留下的 go.work 会让 swag
+# 按本地 kit 源码生成注解，否则 docs 来自改过的 kit、二进制来自钉死版本，两边对不上。
+# 与 dev.sh 同策略：滤掉 600+ 行流水账，只留警告/报错（不用 -q，它把警告也吞了）。
+gen_swagger_docs() {
+    local -a swag_run
+    local swag_log
+    if command -v make >/dev/null 2>&1; then
+        swag_run=(make -C "$ROOT_DIR" --no-print-directory swagger)
+    else
+        echo -e "${YELLOW}        未找到 make，直接调用 swag（若你定制过 swagger 目标，请装 make 或手动生成）${NC}"
+        swag_run=(go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/leivorn/base-kit)
+    fi
+    swag_log=$(mktemp)
+    if (cd "$SERVER_DIR" && GOWORK=off "${swag_run[@]}") >"$swag_log" 2>&1; then
+        grep -vE 'Generating |TypeSpecDef is nil|Generate swagger docs|Generate general API Info|create (docs\.go|swagger\.json|swagger\.yaml) at ' "$swag_log" | sed 's/^/        /' || true
+    else
+        echo -e "${RED}        Swagger 生成失败（继续用上一次的文档）:${NC}"
+        tail -20 "$swag_log" | sed 's/^/        /'
+    fi
+    rm -f "$swag_log"
+}
+
 deploy_server() {
     resolve_server_port
 
@@ -431,19 +459,7 @@ deploy_server() {
     cd "$SERVER_DIR"
 
     echo -e "        生成 Swagger 文档..."
-    # swag 版本与 dev.sh / Makefile / CI 保持一致，避免生成物在不同机器上抖动。
-    # GOWORK=off 与下面的 go build 一致：本地 make kit-dev 留下的 go.work 会让 swag
-    # 按本地 kit 源码生成注解，否则 docs 来自改过的 kit、二进制来自钉死版本，两边对不上
-    # 与 dev.sh 同策略：滤掉 600+ 行流水账，只留警告/报错（不用 -q，它把警告也吞了）
-    local swag_log
-    swag_log=$(mktemp)
-    if GOWORK=off go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,github.com/leivorn/base-kit >"$swag_log" 2>&1; then
-        grep -vE 'Generating |TypeSpecDef is nil|Generate swagger docs|Generate general API Info|create (docs\.go|swagger\.json|swagger\.yaml) at ' "$swag_log" | sed 's/^/        /' || true
-    else
-        echo -e "${RED}        Swagger 生成失败（继续用上一次的文档）:${NC}"
-        tail -20 "$swag_log" | sed 's/^/        /'
-    fi
-    rm -f "$swag_log"
+    gen_swagger_docs
 
     BIN_NAME="$SERVER_BIN_NAME"
     [ "$TARGET_OS" = "windows" ] && BIN_NAME="${BIN_NAME}.exe"
