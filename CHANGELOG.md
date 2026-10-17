@@ -8,6 +8,24 @@
 
 ## [Unreleased]
 
+修下游每次 `./deploy.sh` 都把 `server/docs` 改脏。
+
+### 修复
+
+- `./deploy.sh` 编译后端前生成 Swagger 改为有 make 就走 `make swagger`（和 2.4.2 里的 `./dev.sh`、
+  `scripts/check.sh` 同一个做法），没有 make（Windows 的 Git Bash）才退回直接调 swag 并提示一句；滤掉流水账、
+  生成失败不中断部署这两点不变。此前 deploy.sh 是唯一还写死 swag 命令的地方，下游改过 swagger 目标的
+  （比如加 `--tags` 把后台和开放接口分成两份文档）部署一次就生成出和 CI 不一样的 docs、工作区变脏，
+  之后按 `git describe --dirty` 编的二进制版本号都带 `-dirty`（下游真实案例）。基底本身两条命令一样，结果不变。
+- 新增 `scripts/deploy-swagger-test.sh`：把 deploy.sh 的这一步抠出来、make / go 换成桩离线跑，
+  守住「有 make 走 make swagger、没 make 退回 swag、失败不中断」。由 `scripts/check.sh scripts` 调用
+  （`make check` / `make check-scripts`、CI 后端 job、pre-push 钩子都会跑；Windows 上跳过）。
+
+### 升级步骤
+
+无需操作。自己已经抄过一份 `scripts/deploy-swagger-test.sh` 的下游，合并时这个文件会冲突，取基底版本即可；
+它现在由 `scripts/check.sh scripts` 跑，项目里另外接它的地方（`Makefile.project`、`project.yml`）可以删掉。
+
 ## [2.5.0] - 2026-10-13
 
 GitHub 账号 xsxs89757 改名为 leivorn。旧用户名不再由本人持有，任何人都能注册，注册后旧地址的跳转随即失效，

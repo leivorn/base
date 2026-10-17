@@ -298,11 +298,11 @@ swag init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,githu
 **首选 `make check`**——它和 CI 跑的是同一份逻辑（`scripts/check.sh`），本地绿了 CI 就绿：
 
 ```bash
-make check            # 后端 + 前端 + 脚本语法，等同 CI
+make check            # 后端 + 前端 + 脚本，等同 CI
 make check-backend    # 仅后端：vet / test / 交叉编译 / Swagger 生成
 make typecheck        # 仅前端类型检查（约 20 秒，改 .vue/.ts 后先跑这个）
 make check-frontend   # 前端类型检查 + 构建
-make check-scripts    # 仅 shell 语法（改 dev.sh / deploy.sh / scripts/ 后）
+make check-scripts    # 仅脚本：shell 语法 + 离线行为测试（改 dev.sh / deploy.sh / scripts/ 后）
 ```
 
 `make hooks` 启用后，push 前会按改动路径自动挑上面的检查（`./dev.sh` 启动时也会自动启用）。
