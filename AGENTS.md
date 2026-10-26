@@ -264,13 +264,34 @@ swag init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,githu
 
 - `list.vue`：列表页，使用 `Page` + `useVbenVxeGrid`。
 - `data.ts`：列配置、搜索表单 schema、表单 schema。
-- `modules/form.vue`：新增/编辑抽屉，使用 `useVbenDrawer` + `useVbenForm`。
+- `modules/form.vue`：简单的新增/编辑抽屉，使用 `useVbenDrawer` + `useVbenForm`。
+- `detail.vue` / `edit.vue`：复杂的详情、新增/编辑独立页（何时用见下一节）；页面的分块子组件放 `modules/`。
+
+系统管理模块的表单都很简单，所以全用抽屉；**这只是简单场景的写法，不是业务页的默认模板**。
+
+### 抽屉还是独立页
+
+抽屉只适合「一张表单、十来个字段、填完就关」。满足下面任一条就做成独立页面（新路由，在标签栏里开新标签），不要硬塞进抽屉：
+
+- **查看详情**：要分块展示多类信息（如用户详情 = 基本资料 + 最近订单 + 登录/操作记录），或块里还有带分页的列表。
+- **新增/编辑**：字段多需要分组或分步、带明细行/子表、富文本或大量图片，或本身是一段流程（审核、发货、退款等多步操作）。
+- **要能直达**：需要分享链接、刷新后保持，或同时打开多条对照。
+
+拿不准时：列表行上的「查看」走详情页，简单的编辑仍用抽屉。
+
+落地方式（本项目是 backend 权限模式，路由只来自后端菜单表，前端 `router/routes/modules/` 加路由无效）：
+
+1. **页面组件**：放模块目录根下，如 `views/<模块>/detail.vue`、`views/<模块>/edit.vue`。容器用 `Page`，分块用 Ant Design Vue 的 `Card` / `Descriptions` / `Tabs`；块内列表仍用 `useVbenVxeGrid`，编辑页直接用 `useVbenForm`（不再包 Drawer）。
+2. **隐藏菜单**：每个页面登记一条 `Type: "menu"` 的菜单，与列表页同级（挂同一个父目录，**不要挂成列表页的子级**），设 `HideInMenu: true` 和 `ActivePath: "<列表页 path>"`（进详情时侧栏仍高亮列表菜单）。路径带参数，如 `/system/user/detail/:id`；新增 `/<模块>/create` 与编辑 `/<模块>/edit/:id` 可以是两条菜单指向同一个组件。
+3. **种子**：在 `server/internal/store/project.go` 用 `store.SyncSeedMenus` 登记，`ParentName` 填列表页的父目录名。注意 kit v1.5.0 的 `SyncSeedMenu` 更新已存在的菜单时**不会同步** `hide_in_menu` / `active_path`，这两项必须在首次创建时就写对；已建好的库到「菜单管理」里改。
+4. **权限**：`/admin/menu/all` 对非 super 只返回 `role_menus` 里授权过的菜单，隐藏菜单也一样——`SyncSeedMenus` 新建时自动授给 super/admin，其他角色要在「角色管理」里单独勾上，否则点进去是 404。页面用到的接口照常 `RegisterRoutePermissions` 登记权限码。
+5. **跳转与标签**：列表页用 `` router.push(`/<模块>/detail/${row.id}`) `` 打开；同一路由不同 id 各开一个标签。用 `@vben/hooks` 的 `useTabs().setTabTitle()` 把标签标题设成「用户详情 - 张三」这类可区分的名字，保存或取消后 `closeCurrentTab()` 并回到列表。菜单默认 `keepAlive: false`，切回列表标签会重新挂载、自动刷新；列表开了 keepAlive 的，在 `onActivated` 里调 `gridApi.query()`。
 
 ### 组件使用
 
 - 列表和表格优先使用 `useVbenVxeGrid`，从 `#/adapter/vxe-table` 导入。
 - 表单优先使用 `useVbenForm`，从 `#/adapter/form` 导入。
-- 新增/编辑侧滑层优先使用 `useVbenDrawer`，从 `@vben/common-ui` 导入。
+- 简单的新增/编辑侧滑层使用 `useVbenDrawer`，从 `@vben/common-ui` 导入；复杂的详情和编辑做独立页，见上一节。
 - 页面容器优先使用 `Page`。
 - 图标优先使用项目已有图标包，例如 `@vben/icons`。
 - 不要直接手写一套 Ant Design Vue Table/Form/Drawer，除非 Vben 封装明确无法满足，并在代码中保持局部化。
