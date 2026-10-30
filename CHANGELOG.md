@@ -8,8 +8,16 @@
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-10-30
+
+框架层升级到 base-kit v1.7.0（菜单种子写回 Vben meta 字段、`database.seed`、`server.host`、平滑重启），
+AGENTS.md 新增「抽屉还是独立页」规则。
+
 ### 变更
 
+- AGENTS.md 新增「抽屉还是独立页」：复杂详情（分块展示、块内带分页列表）和复杂新增/编辑（分组分步、明细行、
+  多步流程）做成独立页面，抽屉只留给简单表单；写明隐藏菜单（`HideInMenu` + `ActivePath`，与列表页同级）、
+  `SyncSeedMenus` 种子、非 super 角色单独授权、`useTabs` 设标签标题等落地方式。
 - 框架层升级到 `github.com/leivorn/base-kit v1.7.0`（经 1.5.1、1.6.0，都向后兼容，不改配置行为不变）：
   - 1.5.1：`SyncSeedMenu(s)` 每次启动把 `hide_in_menu`、`active_path`、徽章等 Vben meta 字段按种子写回已存在的菜单，
     此前只在首次建菜单时写入。AGENTS.md「抽屉还是独立页」里对应的说明已改。
