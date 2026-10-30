@@ -1,4 +1,5 @@
 server:
+  host: ""                   # 监听地址，空串=所有网卡；只给本机 nginx 用的生产服务填 127.0.0.1。可被环境变量 SERVER_HOST 覆盖
   port: 8080                 # 可被环境变量 SERVER_PORT 覆盖 (dev.sh 端口被占用自动换端口时使用)
   mode: development          # development / production；production 下 jwt.secret 必须 >=32 位且不能是示例占位值（否则拒绝启动），
                              # 且种子只创建 super 账号（不建 admin/jack 演示账号）
@@ -12,6 +13,8 @@ server:
 database:
   driver: sqlite                # sqlite / mysql / postgres / sqlserver (sqlite 为纯 Go 驱动，支持 CGO_ENABLED=0 交叉编译)
   dsn: "./data.db"              # sqlite 自动附加 WAL/busy_timeout PRAGMA；DSN 里已写 _pragma 时不改写
+  seed: full                    # 启动时的种子写法：full=按种子同步（默认）/ insert=只补缺、已有的不改 / off=不写种子只迁移；
+                                # 和别的系统共用 sys_* 表时用 insert 或 off（off 的新库没有任何账号）
   # MySQL 示例:
   #   driver: mysql
   #   dsn: "user:password@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"

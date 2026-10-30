@@ -283,7 +283,7 @@ swag init -g main.go -o docs --parseDependencyLevel 3 --packagePrefix base,githu
 
 1. **页面组件**：放模块目录根下，如 `views/<模块>/detail.vue`、`views/<模块>/edit.vue`。容器用 `Page`，分块用 Ant Design Vue 的 `Card` / `Descriptions` / `Tabs`；块内列表仍用 `useVbenVxeGrid`，编辑页直接用 `useVbenForm`（不再包 Drawer）。
 2. **隐藏菜单**：每个页面登记一条 `Type: "menu"` 的菜单，与列表页同级（挂同一个父目录，**不要挂成列表页的子级**），设 `HideInMenu: true` 和 `ActivePath: "<列表页 path>"`（进详情时侧栏仍高亮列表菜单）。路径带参数，如 `/system/user/detail/:id`；新增 `/<模块>/create` 与编辑 `/<模块>/edit/:id` 可以是两条菜单指向同一个组件。
-3. **种子**：在 `server/internal/store/project.go` 用 `store.SyncSeedMenus` 登记，`ParentName` 填列表页的父目录名。注意 kit v1.5.0 的 `SyncSeedMenu` 更新已存在的菜单时**不会同步** `hide_in_menu` / `active_path`，这两项必须在首次创建时就写对；已建好的库到「菜单管理」里改。
+3. **种子**：在 `server/internal/store/project.go` 用 `store.SyncSeedMenus` 登记，`ParentName` 填列表页的父目录名。kit v1.5.1 起每次启动都会把 `hide_in_menu` / `active_path` 等 meta 字段按种子写回已存在的菜单，以种子为准——在「菜单管理」里手改的下次启动会被改回，要改就改种子（`database.seed: insert` 时已有菜单不更新）。
 4. **权限**：`/admin/menu/all` 对非 super 只返回 `role_menus` 里授权过的菜单，隐藏菜单也一样——`SyncSeedMenus` 新建时自动授给 super/admin，其他角色要在「角色管理」里单独勾上，否则点进去是 404。页面用到的接口照常 `RegisterRoutePermissions` 登记权限码。
 5. **跳转与标签**：列表页用 `` router.push(`/<模块>/detail/${row.id}`) `` 打开；同一路由不同 id 各开一个标签。用 `@vben/hooks` 的 `useTabs().setTabTitle()` 把标签标题设成「用户详情 - 张三」这类可区分的名字，保存或取消后 `closeCurrentTab()` 并回到列表。菜单默认 `keepAlive: false`，切回列表标签会重新挂载、自动刷新；列表开了 keepAlive 的，在 `onActivated` 里调 `gridApi.query()`。
 

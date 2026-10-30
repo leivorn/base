@@ -8,6 +8,25 @@
 
 ## [Unreleased]
 
+### 变更
+
+- 框架层升级到 `github.com/leivorn/base-kit v1.7.0`（经 1.5.1、1.6.0，都向后兼容，不改配置行为不变）：
+  - 1.5.1：`SyncSeedMenu(s)` 每次启动把 `hide_in_menu`、`active_path`、徽章等 Vben meta 字段按种子写回已存在的菜单，
+    此前只在首次建菜单时写入。AGENTS.md「抽屉还是独立页」里对应的说明已改。
+  - 1.6.0：新配置 `database.seed`（`full` / `insert` / `off`，默认 `full`），供和别的系统共用 `sys_*` 表的库使用；
+    `middleware.RegisterOperationLogExtra` 往操作日志写扩展列；修复扩展结构与基底模型同表时基底列迁移丢失。
+  - 1.7.0：新配置 `server.host`（监听地址，环境变量 `SERVER_HOST` 优先）；以 systemd `Type=notify` 启动时自动启用
+    平滑重启（`systemctl reload` 不断连接）。基底 `deploy.sh` 生成的单元仍是原来的写法，不会启用。
+- `server/config.yaml.example` 补上 `server.host` 与 `database.seed` 两项及说明。
+
+### 升级步骤
+
+1. 合并后 `server/go.mod` 即为 base-kit v1.7.0；下游自己已经 `go get` 过更高版本的，冲突时保留更高的那个。
+2. 升级后首次启动会按种子覆盖菜单的隐藏、激活路径、徽章等字段：在「菜单管理」里给种子菜单手改过这些字段、
+   又想保留的，先写进 `Options.Seed` 的种子定义。没手改过的无需操作。
+3. 已有的 `server/config.yaml` 不用改，两个新配置项都有默认值。只给本机 nginx 用的生产服务可以加 `host: 127.0.0.1`；
+   要平滑重启见 base-kit README「监听地址与平滑重启」。
+
 ## [2.5.1] - 2026-10-17
 
 修下游每次 `./deploy.sh` 都把 `server/docs` 改脏。

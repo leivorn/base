@@ -9,7 +9,7 @@ toolchain go1.26.6
 require (
 	github.com/gofiber/fiber/v2 v2.52.15
 	github.com/gofiber/swagger v1.1.1
-	github.com/leivorn/base-kit v1.5.0
+	github.com/leivorn/base-kit v1.7.0
 	github.com/swaggo/swag v1.16.6
 	gorm.io/gorm v1.31.2
 )
